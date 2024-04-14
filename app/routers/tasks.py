@@ -11,9 +11,7 @@ router = APIRouter(
     prefix="/api/tasks",
 )
 
-
 fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
-
 
 @router.get("",  tags=["tasks"])
 def read_tasks():
@@ -24,7 +22,6 @@ def read_tasks():
 @router.post("",  tags=["tasks"])
 def crear_tasks(file: UploadFile = File(...), db: Session = Depends(database.get_db)):
     """ Permite crear una nueva tarea de edición de video. El usuario requiere autorización."""
-    print(file)
     if not file:
         return {"message": "No upload file sent"}
     else:
@@ -42,7 +39,7 @@ def crear_tasks(file: UploadFile = File(...), db: Session = Depends(database.get
         finally:
             file.file.close()
         output_path = get_path('output')
-        # convertir_video.delay(task_id, file_path, output_path)
+        convertir_video.delay(task_id, file_path, output_path)
         new_task = task.Task(task_id = task_id, status = 'uploaded')
         db.add(new_task)
         db.commit()
@@ -67,7 +64,6 @@ autorización. """
 def update_task_to_processed(id_task: str, db: Session = Depends(database.get_db)):
     """ Permite recuperar la información de una tarea en la aplicación. El usuario requiere
 autorización. """
-
     db_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     if db_task is None:
         return {
