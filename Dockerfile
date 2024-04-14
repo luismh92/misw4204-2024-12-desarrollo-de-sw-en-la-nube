@@ -8,4 +8,5 @@ RUN apk add --no-cache gcc musl-dev linux-headers ffmpeg postgresql-dev python3-
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY . .
+RUN sleep 30s
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

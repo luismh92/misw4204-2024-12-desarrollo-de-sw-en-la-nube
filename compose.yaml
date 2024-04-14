@@ -16,7 +16,9 @@ services:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
     depends_on:
+      - db-postgres
       - redis
+      
 
   worker:
     build: .
@@ -52,7 +54,7 @@ services:
       POSTGRES_PASSWORD: "123456"
       POSTGRES_DB: "postgres"
     ports:
-      - 5460:5432
+      - 5433:5432
   
 
   
