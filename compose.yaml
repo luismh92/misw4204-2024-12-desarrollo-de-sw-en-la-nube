@@ -47,8 +47,7 @@ services:
       - worker
 
   db-postgres:
-    image: postgres:latest
-    restart: always
+    image: postgres:15-alpine
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "123456"

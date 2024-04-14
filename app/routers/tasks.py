@@ -42,7 +42,7 @@ def crear_tasks(file: UploadFile = File(...), db: Session = Depends(database.get
         finally:
             file.file.close()
         output_path = get_path('output')
-        convertir_video.delay(task_id, file_path, output_path)
+        # convertir_video.delay(task_id, file_path, output_path)
         new_task = task.Task(task_id = task_id, status = 'uploaded')
         db.add(new_task)
         db.commit()
