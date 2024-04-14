@@ -13,6 +13,6 @@ BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 @celery.task(name="convertir_video")
 def convertir_video(task_id, file_path, output_path):
     """ Create a task that takes some time to complete"""
-    subprocess.run(f'ffmpeg -t 30 -r 10 -i {file_path} -aspect 16:10 -r ntsc '+str(output_path), shell=True)
+    subprocess.run(f'ffmpeg -t 20 -r 10 -i {file_path} -aspect 16:10 -r ntsc '+str(output_path), shell=True)
     req.put(f'{BACKEND_URL}/api/tasks/to-processed/{task_id}')
     return True
