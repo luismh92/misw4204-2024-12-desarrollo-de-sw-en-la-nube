@@ -11,12 +11,12 @@ router = APIRouter(
     prefix="/api/tasks",
 )
 
-fake_items_db = {"plumbus": {"name": "Plumbus"}, "gun": {"name": "Portal Gun"}}
 
 @router.get("",  tags=["tasks"])
-def read_tasks():
+def read_tasks(db: Session = Depends(database.get_db)):
     """ Permite recuperar todas las tareas de edición de un usuario autorizado en la aplicación. """
-    return fake_items_db
+    object_tasks = db.query(task.Task).all()
+    return object_tasks
 
 
 @router.post("",  tags=["tasks"])
@@ -48,14 +48,15 @@ def crear_tasks(file: UploadFile = File(...), db: Session = Depends(database.get
 
 
 @router.get("/{id_task}",  tags=["tasks"])
-def read_task_by_id(id_task: str):
+def read_task_by_id(id_task: str, db: Session = Depends(database.get_db)):
     """ Permite recuperar la información de una tarea en la aplicación. El usuario requiere
 autorización. """
-    task_result = AsyncResult(id_task)
+    object_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     result = {
-        "task_id": id_task,
-        "task_status": task_result.status,
-        "task_result": task_result.result
+        "id": object_task.id,
+        "task_id": object_task.task_id,
+        "status": object_task.status,
+        "time_stamp": object_task.time_stamp
     }
     return result
 
@@ -81,6 +82,19 @@ autorización. """
 
 
 @router.delete("/{id_task}",  tags=["tasks"])
-def delete_task_by_id(id_task: str):
+def delete_task_by_id(id_task: str, db: Session = Depends(database.get_db)):
     """ Permite eliminar una tarea en la aplicación. El usuario requiere autorización. """
-    return fake_items_db
+    db_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
+    if db_task is None:
+        return {
+            "task_id": id_task,
+            "message": "Task not found"
+        }
+
+    db.delete(db_task)
+    db.commit()
+    result = {
+        "task_id": id_task,
+        "message": "Task deleted"
+    }
+    return result
