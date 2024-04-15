@@ -1,27 +1,35 @@
 """ Módulo de tareas de edición de video. """
 import uuid
 import pathlib
-from fastapi import APIRouter, UploadFile, File, Depends
+from typing import Annotated
+from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from app.workers.worker import convertir_video
-from celery.result import AsyncResult
 from app.models import task, database
+from app.routers.auth import get_current_user
 from sqlalchemy.orm import Session
 
 router = APIRouter(
     prefix="/api/tasks",
 )
+UserDependency = Annotated[dict, Depends(get_current_user)]
 
 
 @router.get("",  tags=["tasks"])
-def read_tasks(db: Session = Depends(database.get_db)):
+def read_tasks(user: UserDependency, db: Session = Depends(database.get_db)):
     """ Permite recuperar todas las tareas de edición de un usuario autorizado en la aplicación. """
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication failed .')
     object_tasks = db.query(task.Task).all()
     return object_tasks
 
 
 @router.post("",  tags=["tasks"])
-def crear_tasks(file: UploadFile = File(...), db: Session = Depends(database.get_db)):
+def crear_tasks(user: UserDependency,
+                file: UploadFile = File(...), db: Session = Depends(database.get_db)):
     """ Permite crear una nueva tarea de edición de video. El usuario requiere autorización."""
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication failed')
+
     if not file:
         return {"message": "No upload file sent"}
     else:
@@ -48,9 +56,12 @@ def crear_tasks(file: UploadFile = File(...), db: Session = Depends(database.get
 
 
 @router.get("/{id_task}",  tags=["tasks"])
-def read_task_by_id(id_task: str, db: Session = Depends(database.get_db)):
+def read_task_by_id(user: UserDependency, id_task: str, db: Session = Depends(database.get_db)):
     """ Permite recuperar la información de una tarea en la aplicación. El usuario requiere
 autorización. """
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication failed.')
+
     object_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     result = {
         "id": object_task.id,
@@ -62,9 +73,13 @@ autorización. """
 
 
 @router.put("/to-processed/{id_task}",  tags=["tasks"])
-def update_task_to_processed(id_task: str, db: Session = Depends(database.get_db)):
+def update_task_to_processed(user: UserDependency,
+                             id_task: str, db: Session = Depends(database.get_db)):
     """ Permite recuperar la información de una tarea en la aplicación. El usuario requiere
 autorización. """
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication failed.')
+
     db_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     if db_task is None:
         return {
@@ -82,8 +97,11 @@ autorización. """
 
 
 @router.delete("/{id_task}",  tags=["tasks"])
-def delete_task_by_id(id_task: str, db: Session = Depends(database.get_db)):
+def delete_task_by_id(user: UserDependency, id_task: str, db: Session = Depends(database.get_db)):
     """ Permite eliminar una tarea en la aplicación. El usuario requiere autorización. """
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication failed.')
+
     db_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     if db_task is None:
         return {
