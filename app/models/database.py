@@ -5,7 +5,9 @@ from sqlalchemy.orm import sessionmaker
 
 
 DB_HOST_URL = os.environ.get("DB_HOST_URL", "127.0.0.1:5433")
-SQLALCHEMY_DATABASE_URL = f'postgresql+psycopg2://postgres:123456@{DB_HOST_URL}/postgres'
+DB_PASSWORD = os.environ.get("DB_PASSWORD", "123456")
+DB_USER = os.environ.get("DB_USER", "postgres")
+SQLALCHEMY_DATABASE_URL = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST_URL}/postgres'
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
