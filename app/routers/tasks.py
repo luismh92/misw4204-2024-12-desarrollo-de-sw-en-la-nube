@@ -73,13 +73,9 @@ autorización. """
 
 
 @router.put("/to-processed/{id_task}",  tags=["tasks"])
-def update_task_to_processed(user: UserDependency,
-                             id_task: str, db: Session = Depends(database.get_db)):
+def update_task_to_processed(id_task: str, db: Session = Depends(database.get_db)):
     """ Permite recuperar la información de una tarea en la aplicación. El usuario requiere
 autorización. """
-    if user is None:
-        raise HTTPException(status_code=401, detail='Authentication failed.')
-
     db_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     if db_task is None:
         return {
