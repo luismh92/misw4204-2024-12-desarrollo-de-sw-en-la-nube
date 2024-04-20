@@ -8,5 +8,4 @@ RUN apk add --no-cache gcc musl-dev linux-headers ffmpeg postgresql-dev python3-
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY . .
-EXPOSE 8004
 CMD uvicorn app.main:app --reload --workers 1 --host 0.0.0.0 --port 80
