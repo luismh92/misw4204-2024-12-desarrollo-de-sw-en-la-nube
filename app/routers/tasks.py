@@ -42,7 +42,8 @@ def crear_tasks(user: UserDependency,
             file_path = get_path()
             with open(file_path, 'wb') as f:
                 f.write(contents)
-        except Exception:
+        except Exception as e:
+            print("error uploading file: ", str(e))
             return {"message": "There was an error uploading the file"}
         finally:
             file.file.close()
