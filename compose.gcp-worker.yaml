@@ -20,6 +20,7 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - BACKEND_URL=http://10.128.0.2:8040
+      - BACKEND_URL=http://35.202.22.244:8040
     depends_on:
       - redis
+
