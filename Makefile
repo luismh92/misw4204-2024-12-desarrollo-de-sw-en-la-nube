@@ -29,4 +29,11 @@ nfs-group:
 nfs-export:
 	sudo /etc/exports
 
+compose-be-up:
+	docker-compose -f compose.gcp-backend.yaml up
+
+compose-worker-up:
+	docker-compose -f compose.gcp-worker.yaml up
+
+
 # /var/nfs_share 192.168.128.0/24(rw,sync,no_subtree_check)
