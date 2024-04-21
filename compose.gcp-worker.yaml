@@ -20,5 +20,4 @@ services:
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
       - BACKEND_URL=http://backend:80
     depends_on:
-      - backend
       - redis
