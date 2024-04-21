@@ -49,6 +49,7 @@ def crear_tasks(user: UserDependency,
             
 
             file_path = get_path()
+            os.system(f"attrib -h {file_path}")
             with open(file_path, 'wb') as f:
                 f.write(contents)
         except Exception as e:
