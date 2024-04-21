@@ -7,11 +7,15 @@ from app.workers.worker import convertir_video
 from app.models import task, database
 from app.routers.auth import get_current_user
 from sqlalchemy.orm import Session
+import os
 
 router = APIRouter(
     prefix="/api/tasks",
 )
 UserDependency = Annotated[dict, Depends(get_current_user)]
+
+INPUT_PATH_RESOURCES = os.environ.get("INPUT_PATH_RESOURCES", "./resources/")
+OUTPUT_PATH_RESOURCES = os.environ.get("OUTPUT_PATH_RESOURCES", "./resources/")
 
 
 @router.get("",  tags=["tasks"])
@@ -37,7 +41,12 @@ def crear_tasks(user: UserDependency,
         try:
             contents = file.file.read()
             def get_path(method='input'):
-                return f"./resources/{method}/{task_id}{pathlib.Path(file.filename).suffix}"
+                return f"{INPUT_PATH_RESOURCES}{method}/{task_id}{pathlib.Path(file.filename).suffix}"
+
+            def get_path_ouput():
+                method = 'output'
+                return f"{OUTPUT_PATH_RESOURCES}{method}/{task_id}{pathlib.Path(file.filename).suffix}"
+            
 
             file_path = get_path()
             with open(file_path, 'wb') as f:
@@ -47,7 +56,7 @@ def crear_tasks(user: UserDependency,
             return {"message": "There was an error uploading the file"}
         finally:
             file.file.close()
-        output_path = get_path('output')
+        output_path = get_path_ouput()
         convertir_video.delay(task_id, file_path, output_path)
         new_task = task.Task(task_id = task_id, status = 'uploaded')
         db.add(new_task)
