@@ -3,8 +3,6 @@ services:
 
   redis:
     image: redis:7
-    ports:
-      - 6379:6379
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 10s
@@ -20,7 +18,6 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
-      - BACKEND_URL=http://35.202.22.244:8040
+      - BACKEND_URL=http://backend:80
     depends_on:
       - redis
-
