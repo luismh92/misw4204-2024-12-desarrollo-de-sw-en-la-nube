@@ -8,7 +8,7 @@ from app.models import task, database
 from app.routers.auth import get_current_user
 from sqlalchemy.orm import Session
 import os
-
+from logs import logger
 router = APIRouter(
     prefix="/api/tasks",
 )
@@ -52,13 +52,16 @@ def crear_tasks(user: UserDependency,
             
             with open(file_path, 'wb') as f:
                 f.write(contents)
+            logger.info(f"File {file.filename} uploaded successfully")
         except Exception as e:
             print("error uploading file: ", str(e))
             return {"message": "There was an error uploading the file"}
         finally:
             file.file.close()
         output_path = get_path_ouput()
+        logger.info(f"Task {task_id} created")
         convertir_video.delay(task_id, file_path, output_path)
+        logger.info(f"Task {task_id} sent to worker")
         new_task = task.Task(task_id = task_id, status = 'uploaded')
         db.add(new_task)
         db.commit()
