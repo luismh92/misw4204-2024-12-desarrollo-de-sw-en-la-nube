@@ -3,9 +3,9 @@ import os
 import subprocess
 import requests as req
 celery = Celery(__name__)
-celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
-celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
-BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
+celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379")
+celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379")
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 
 @celery.task(name="convertir_video")
 def convertir_video(task_id, file_path, output_path):
