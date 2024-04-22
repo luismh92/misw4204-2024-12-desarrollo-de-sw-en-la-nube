@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+
+  backend:
+    build: .
+    ports:
+      - 8040:80
+    volumes:
+      - ./app:/usr/src/app
+      - ./resources:/code/resources
+    environment:
+      - CELERY_BROKER_URL=redis://35.239.23.87:6379/0
+      - CELERY_RESULT_BACKEND=redis://35.239.23.87:6379/0
+      - DB_HOST_URL=104.197.254.40:5432
+    restart: always

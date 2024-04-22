@@ -15,4 +15,25 @@ down-compose:
 
 kill:
 	kill -9 1454
-	kill -9 4907	
+	kill -9 4907
+
+i-nfs:
+	sudo apt-get install nfs-kernel-server
+
+make-dir:
+	sudo mkdir -p /var/nfs_share
+
+nfs-group:
+	sudo chown nobody:nogroup /var/nfs_share
+
+nfs-export:
+	sudo /etc/exports
+
+compose-be-up:
+	docker-compose -f compose.gcp-backend.yaml up
+
+compose-worker-up:
+	docker-compose -f compose.gcp-worker.yaml up
+
+
+# /var/nfs_share 192.168.128.0/24(rw,sync,no_subtree_check)

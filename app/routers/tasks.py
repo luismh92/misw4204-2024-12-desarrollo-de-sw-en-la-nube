@@ -7,11 +7,15 @@ from app.workers.worker import convertir_video
 from app.models import task, database
 from app.routers.auth import get_current_user
 from sqlalchemy.orm import Session
-
+import os
+import logging
 router = APIRouter(
     prefix="/api/tasks",
 )
 UserDependency = Annotated[dict, Depends(get_current_user)]
+
+INPUT_PATH_RESOURCES = os.environ.get("INPUT_PATH_RESOURCES", "./resources/")
+OUTPUT_PATH_RESOURCES = os.environ.get("OUTPUT_PATH_RESOURCES", "./resources/")
 
 
 @router.get("",  tags=["tasks"])
@@ -37,17 +41,27 @@ def crear_tasks(user: UserDependency,
         try:
             contents = file.file.read()
             def get_path(method='input'):
-                return f"./resources/{method}/{task_id}{pathlib.Path(file.filename).suffix}"
+                return f"{INPUT_PATH_RESOURCES}{method}/{task_id}{pathlib.Path(file.filename).suffix}"
+
+            def get_path_ouput():
+                method = 'output'
+                return f"{OUTPUT_PATH_RESOURCES}{method}/{task_id}{pathlib.Path(file.filename).suffix}"
+            
 
             file_path = get_path()
+            
             with open(file_path, 'wb') as f:
                 f.write(contents)
-        except Exception:
+            logging.info(f"File {file.filename} uploaded successfully")
+        except Exception as e:
+            print("error uploading file: ", str(e))
             return {"message": "There was an error uploading the file"}
         finally:
             file.file.close()
-        output_path = get_path('output')
+        output_path = get_path_ouput()
+        logging.info(f"Task {task_id} created")
         convertir_video.delay(task_id, file_path, output_path)
+        logging.info(f"Task {task_id} sent to worker")
         new_task = task.Task(task_id = task_id, status = 'uploaded')
         db.add(new_task)
         db.commit()
@@ -73,13 +87,9 @@ autorización. """
 
 
 @router.put("/to-processed/{id_task}",  tags=["tasks"])
-def update_task_to_processed(user: UserDependency,
-                             id_task: str, db: Session = Depends(database.get_db)):
+def update_task_to_processed(id_task: str, db: Session = Depends(database.get_db)):
     """ Permite recuperar la información de una tarea en la aplicación. El usuario requiere
 autorización. """
-    if user is None:
-        raise HTTPException(status_code=401, detail='Authentication failed.')
-
     db_task = db.query(task.Task).filter(task.Task.task_id == id_task).one_or_none()
     if db_task is None:
         return {
