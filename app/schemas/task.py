@@ -5,6 +5,7 @@ class TaskBase(BaseModel):
     """ Task Base Schema """
     status: str
     task_id: str
+    input_path: str
 
     class Config:
         """ORM Mode"""
