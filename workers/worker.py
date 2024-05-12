@@ -6,7 +6,6 @@ import requests as req
 from workers import gcp
 from google.cloud import pubsub_v1
 from fastapi import FastAPI
-from app.models.database import Base, engine
 
 app = FastAPI()
 
