@@ -4,11 +4,11 @@ import pathlib
 import os
 import logging
 from typing import Annotated
-from app.workers.worker import convertir_video
 from app.models import task, database, gcp
 from app.routers.auth import get_current_user
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
+
 
 router = APIRouter(
     prefix="/api/tasks",
@@ -42,6 +42,7 @@ def crear_tasks(user: UserDependency,
         try:
             contents = file.file.read()
             file_name = pathlib.Path(file.filename).suffix
+
             def get_path(method='input'):
                 return f"{INPUT_PATH_RESOURCES}{method}/{task_id}{file_name}"
 
@@ -61,8 +62,10 @@ def crear_tasks(user: UserDependency,
         gcp_path = f'resources/input/{task_id}{file_name}'
         gcp.upload_blob(GCP_BUCKET, file_path, gcp_path)
         logging.info("Task %s sent to worker", task_id)
-        convertir_video.delay(task_id, GCP_BUCKET, gcp_path)
-        new_task = task.Task(task_id=task_id, status='uploaded', input_path=gcp_path)
+        # convertir_video.delay(task_id, GCP_BUCKET, gcp_path)
+        gcp.pub_message(task_id=task_id, gcp_bucket=GCP_BUCKET, gcp_path=gcp_path)
+        new_task = task.Task(
+            task_id=task_id, status='uploaded', input_path=gcp_path)
         db.add(new_task)
         db.commit()
         db.refresh(new_task)

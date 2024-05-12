@@ -8,7 +8,6 @@ celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://127.0.0.1:6379")
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://127.0.0.1:6379")
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
-OUTPUT_PATH_RESOURCES = os.environ.get("OUTPUT_PATH_RESOURCES", "./resources/")
 
 @celery.task(name="convertir_video")
 def convertir_video(task_id, bucket_name, gcp_path):
