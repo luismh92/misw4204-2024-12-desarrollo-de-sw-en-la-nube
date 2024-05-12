@@ -1,0 +1,15 @@
+sudo tee /etc/systemd/system/worker-subscriber.service > /dev/null <<EOF
+[Unit]
+Description=Worker for Pub/Sub Service
+After=network.target
+
+[Service]
+User=luismh2401
+WorkingDirectory=/misw4204-2024-12-desarrollo-de-sw-en-la-nube
+Environment="DB_HOST_URL=35.209.229.223:8040"
+ExecStart=/usr/bin/python3 /misw4204-2024-12-desarrollo-de-sw-en-la-nube/workers/worker.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF

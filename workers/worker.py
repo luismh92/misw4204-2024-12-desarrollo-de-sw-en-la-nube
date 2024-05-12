@@ -3,9 +3,12 @@ import os
 import json
 import subprocess
 import requests as req
-import gcp
+from workers import gcp
 from google.cloud import pubsub_v1
+from fastapi import FastAPI
+from app.models.database import Base, engine
 
+app = FastAPI()
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 path_absolute = os.path.abspath("app/models/credentials.json")
@@ -84,5 +87,4 @@ def convertir_video(task_id, bucket_name, gcp_path):
     req.put(f'{BACKEND_URL}/api/tasks/to-processed/{task_id}')
     return True
 
-if __name__ == '__main__':
-    get_message()
+get_message()
