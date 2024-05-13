@@ -1,3 +1,4 @@
+"""Módulo de configuración de la base de datos."""
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
