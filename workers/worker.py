@@ -7,6 +7,7 @@ from workers import gcp
 from google.cloud import pubsub_v1
 from fastapi import FastAPI
 import uuid
+import time
 app = FastAPI()
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
@@ -46,8 +47,8 @@ def convertir_video(task_id, bucket_name, gcp_path):
     """ Convierte un video a un formato específico. """
     file_name_download = f'./resources/output/{task_id}_temp.mp4'
     while not gcp.blob_exists(bucket_name, gcp_path):
-        pass
-
+        time.sleep(5)  # Esperar 5 segundos y volver a intentar
+        
     gcp.download_blob(bucket_name, gcp_path, file_name_download)
     # URL del logo
     logo_url = "https://www.sportsbusinessjournal.com/-/media/Sporttechie/2016/10/21/Screen-Shot-2016-10-19-at-9_29_33-AM.ashx"
