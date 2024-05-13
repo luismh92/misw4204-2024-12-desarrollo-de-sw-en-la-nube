@@ -6,7 +6,7 @@ import requests as req
 from workers import gcp
 from google.cloud import pubsub_v1
 from fastapi import FastAPI
-
+import uuid
 app = FastAPI()
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
@@ -15,6 +15,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=path_absolute
 project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'desarrollo-de-sw-en-la-nube-04')
 subscription_id = "desarrollo-de-software-en-la-nube-sub"
 
+GCP_BUCKET = os.environ.get("GCP_BUCKET", 'desarrollo-sw-en-la-nube-miso4203')
 
 def get_message():
     """ Listens for messages on a Pub/Sub subscription. """
@@ -27,9 +28,8 @@ def get_message():
         """ Receives a pub/sub message. """
         response = json.loads((message.data).decode())
         print(response["task_id"])
-        print(response["gcp_bucket"])
         print(response["gcp_path"])
-        convertir_video(response["task_id"], response["gcp_bucket"], response["gcp_path"])
+        convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
         message.ack()
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
@@ -47,7 +47,7 @@ def convertir_video(task_id, bucket_name, gcp_path):
     file_name_download = f'./resources/output/{task_id}_temp.mp4'
     while not gcp.blob_exists(bucket_name, gcp_path):
         pass
-    
+
     gcp.download_blob(bucket_name, gcp_path, file_name_download)
     # URL del logo
     logo_url = "https://www.sportsbusinessjournal.com/-/media/Sporttechie/2016/10/21/Screen-Shot-2016-10-19-at-9_29_33-AM.ashx"
@@ -61,7 +61,7 @@ def convertir_video(task_id, bucket_name, gcp_path):
             f.write(response.content)
 
     # Primer paso: Recortar y escalar el video
-    temp_video_path = "/tmp/temp_video.mp4"  # Cambiar según la estructura de carpetas del servidor
+    temp_video_path = f"/tmp/{uuid.uuid4()}.mp4"  # Cambiar según la estructura de carpetas del servidor
     subprocess.run(
         [
             'ffmpeg', '-i', file_name_download, '-t', '20', '-vf', 'scale=1920x1080,setdar=16/9', 

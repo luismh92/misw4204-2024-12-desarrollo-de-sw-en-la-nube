@@ -32,7 +32,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
         sys.exit(1)
 
 
-def pub_message(task_id, gcp_bucket, gcp_path):
+def pub_message(task_id, gcp_path):
     """ Publishes a message to a Pub/Sub topic. """
     topic = 'desarrollo-de-software-en-la-nube'
     topic_name = f'projects/{project_id}/topics/{topic}'
@@ -43,7 +43,6 @@ def pub_message(task_id, gcp_bucket, gcp_path):
     # publisher.create_topic(name=topic_name)
     data = {
         "task_id": str(task_id),
-        "gcp_bucket": str(gcp_bucket),
         "gcp_path": str(gcp_path)
     }
     data = json.dumps(data).encode("utf-8")
