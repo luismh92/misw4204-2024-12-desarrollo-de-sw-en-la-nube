@@ -9,6 +9,15 @@ path_absolute = os.path.abspath("app/models/credentials.json")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=path_absolute
 project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'desarrollo-de-sw-en-la-nube-04')
 
+
+def blob_exists(bucket_name, blob_name):
+   """ Check if a blob exists in the bucket. """
+   client = storage.Client()
+   bucket = client.get_bucket(bucket_name)
+   blob = bucket.blob(blob_name)
+   return blob.exists()
+
+
 def download_blob(bucket_name, blob_name, destination_file_name):
     """ Downloads a blob from the bucket. """
     storage_client = storage.Client()
