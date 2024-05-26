@@ -7,4 +7,4 @@ WORKDIR /code
 RUN apk add --no-cache gcc musl-dev linux-headers ffmpeg postgresql-dev python3-dev nfs-utils g++
 RUN pip install -r /code/requirements.txt
 COPY . .
-CMD uvicorn workers.worker:app --reload --workers 1 --host 0.0.0.0 --port 8080
+CMD uvicorn workers.worker:app --reload --workers 1
