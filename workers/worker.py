@@ -46,11 +46,11 @@ async def index(envelope: Envelope):
     print(f"envelope value: {envelope}!")
     pubsub_message = envelope.message
 
-    name = "pubsub_message"
+    response = "pubsub_message"
     if isinstance(pubsub_message.dict(), dict) and "data" in pubsub_message.dict():
-        name = base64.b64decode(pubsub_message.data).decode("utf-8").strip()
-        # get_message(pubsub_message)
-    print(f"pubsub_message value: {name}!")
+        response = base64.b64decode(pubsub_message.data).decode("utf-8").strip()
+        get_message(response)
+    print(f"pubsub_message value: {response}!")
 
     return {"pubsub_message": "Message processed"}
 
