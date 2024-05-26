@@ -52,7 +52,7 @@ async def index(envelope: Envelope):
         get_message(response)
     print(f"pubsub_message value: {response}!")
 
-    return {"pubsub_message": "Message processed"}
+    return {"message": "Message processed"}
 
 
 def get_message(response):
