@@ -48,7 +48,7 @@ async def index(envelope: Envelope):
 
     response = "pubsub_message"
     if isinstance(pubsub_message.dict(), dict) and "data" in pubsub_message.dict():
-        response = base64.b64decode(pubsub_message.data).decode("utf-8").strip()
+        response = json.loads((pubsub_message.data).decode())
         get_message(response)
     print(f"pubsub_message value: {response}!")
 
@@ -58,11 +58,6 @@ async def index(envelope: Envelope):
 def get_message(response):
     """ Listens for messages on a Pub/Sub subscription. """
     print("response:")
-    print(response)
-    response = json.loads(response)
-    print("json Pyaload")
-    print(response['textPayload'])
-    response = json.loads(response['textPayload'])
     print(response)
     print(response["task_id"])
     print(response["gcp_path"])
