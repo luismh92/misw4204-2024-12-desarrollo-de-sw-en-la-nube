@@ -61,7 +61,7 @@ def get_message(response):
     print(response)
     response = json.loads(response)
     print("json Pyaload")
-    print(response)
+    print(response['textPayload'])
     response = response['jsonPayload']
     print(response["task_id"])
     print(response["gcp_path"])
