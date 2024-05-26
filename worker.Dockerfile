@@ -2,6 +2,7 @@
 FROM python:3.10-alpine
 COPY ./requirements.txt /code/requirements.txt
 COPY ./workers /code/workers
+COPY ./resources /code/resources
 WORKDIR /code
 # COPY ./resources /code/resources
 RUN apk add --no-cache gcc musl-dev linux-headers ffmpeg postgresql-dev python3-dev nfs-utils g++
