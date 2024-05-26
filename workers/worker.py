@@ -10,8 +10,12 @@ import uuid
 import time
 app = FastAPI()
 
+@app.get("/")
+def read_root():
+    return {"health": "Health APIs"}
+
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
-path_absolute = os.path.abspath("app/models/credentials.json")
+path_absolute = os.path.abspath("workers/credentials.json")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=path_absolute
 project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'desarrollo-de-sw-en-la-nube-04')
 subscription_id = "desarrollo-de-software-en-la-nube-sub"
