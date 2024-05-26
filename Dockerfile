@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM python:3.10-alpine
+ARG DB_HOST_URL
+ENV DB_HOST_URL $DB_HOST_URL
 COPY ./requirements.txt /code/requirements.txt
 COPY ./app /code/app
 WORKDIR /code
