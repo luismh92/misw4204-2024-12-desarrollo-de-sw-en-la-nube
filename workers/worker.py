@@ -8,8 +8,11 @@ from google.cloud import pubsub_v1
 from fastapi import FastAPI
 import uuid
 import time
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException
 import base64
+from typing import Optional, Dict, Any
+from pydantic import BaseModel
+
 app = FastAPI()
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 path_absolute = os.path.abspath("workers/credentials.json")
@@ -19,36 +22,45 @@ subscription_id = "desarrollo-de-software-en-la-nube-sub"
 
 GCP_BUCKET = os.environ.get("GCP_BUCKET", 'desarrollo-sw-en-la-nube-miso4203')
 
-@app.post("/")
-def read_root(request: Request):
-    """ Health check endpoint. """
+class PubSubMessage(BaseModel):
+    data: Optional[str]
+    attributes: Optional[Dict[str, Any]]
 
+class Envelope(BaseModel):
+    message: Optional[PubSubMessage]
+    subscription: str
+
+@app.post("/")
+async def index(envelope: Envelope):
     """Receive and parse Pub/Sub messages."""
-    envelope = request.get_json()
     if not envelope:
         msg = "no Pub/Sub message received"
         print(f"error: {msg}")
-        return f"Bad Request: {msg}", 400
+        raise HTTPException(status_code=400, detail=msg)
 
-    if not isinstance(envelope, dict) or "message" not in envelope:
+    if not isinstance(envelope.dict(), dict) or "message" not in envelope.dict():
         msg = "invalid Pub/Sub message format"
         print(f"error: {msg}")
-        return f"Bad Request: {msg}", 400
+        raise HTTPException(status_code=400, detail=msg)
 
-    pubsub_message = envelope["message"]
-    get_message(pubsub_message)
-    return {"health": "Health APIs"}
+    pubsub_message = envelope.message
 
-def get_message(pubsub_message):
+    name = "pubsub_message"
+    if isinstance(pubsub_message.dict(), dict) and "data" in pubsub_message.dict():
+        name = base64.b64decode(pubsub_message.data).decode("utf-8").strip()
+        get_message(pubsub_message)
+    print(f"pubsub_message value: {name}!")
+
+    return {"pubsub_message": "Message processed"}
+
+
+def get_message(response):
     """ Listens for messages on a Pub/Sub subscription. """
-    response = "World"
-    if isinstance(pubsub_message, dict) and "data" in pubsub_message:
-        response = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
-        print("response:")
-        print(response)
-        print(response["task_id"])
-        print(response["gcp_path"])
-        convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
+    print("response:")
+    print(response)
+    print(response["task_id"])
+    print(response["gcp_path"])
+    convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
 
     print(f"Listening for messages on {response}..\n")
 
