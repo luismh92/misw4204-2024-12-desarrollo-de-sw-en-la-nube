@@ -59,7 +59,8 @@ def get_message(response):
     """ Listens for messages on a Pub/Sub subscription. """
     print("response:")
     print(response)
-    response = response['jsonPayload']
+    print("json Pyaload")
+    print(response['jsonPayload'])
     print(response["task_id"])
     print(response["gcp_path"])
     convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
