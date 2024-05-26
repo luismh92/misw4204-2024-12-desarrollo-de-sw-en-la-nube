@@ -12,6 +12,8 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
+    """ Health check endpoint. """
+    get_message()
     return {"health": "Health APIs"}
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
@@ -93,5 +95,3 @@ def convertir_video(task_id, bucket_name, gcp_path):
     # Actualizar el estado de la tarea en el backend
     req.put(f'{BACKEND_URL}/api/tasks/to-processed/{task_id}')
     return True
-
-get_message()
