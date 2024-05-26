@@ -48,7 +48,7 @@ async def index(envelope: Envelope):
 
     response = "pubsub_message"
     if isinstance(pubsub_message.dict(), dict) and "data" in pubsub_message.dict():
-        response = json.loads((pubsub_message.data).decode())
+        response = base64.b64decode(pubsub_message.data).decode("utf-8").strip()
         get_message(response)
     print(f"pubsub_message value: {response}!")
 
@@ -58,7 +58,10 @@ async def index(envelope: Envelope):
 def get_message(response):
     """ Listens for messages on a Pub/Sub subscription. """
     print("response:")
+    print(type(response))
     print(response)
+    response = json.loads(response)
+    print("json Pyaload")
     print(response["task_id"])
     print(response["gcp_path"])
     convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
