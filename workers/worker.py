@@ -8,14 +8,9 @@ from google.cloud import pubsub_v1
 from fastapi import FastAPI
 import uuid
 import time
+from fastapi import FastAPI, Request
+import base64
 app = FastAPI()
-
-@app.post("/")
-def read_root():
-    """ Health check endpoint. """
-    get_message()
-    return {"health": "Health APIs"}
-
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 path_absolute = os.path.abspath("workers/credentials.json")
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]=path_absolute
@@ -24,29 +19,58 @@ subscription_id = "desarrollo-de-software-en-la-nube-sub"
 
 GCP_BUCKET = os.environ.get("GCP_BUCKET", 'desarrollo-sw-en-la-nube-miso4203')
 
-def get_message():
-    """ Listens for messages on a Pub/Sub subscription. """
-    subscriber = pubsub_v1.SubscriberClient()
-    # The `subscription_path` method creates a fully qualified identifier
-    # in the form `projects/{project_id}/subscriptions/{subscription_id}`
-    subscription_path = subscriber.subscription_path(project_id, subscription_id)
+@app.post("/")
+def read_root(request: Request):
+    """ Health check endpoint. """
 
-    def callback(message: pubsub_v1.subscriber.message.Message) -> None:
-        """ Receives a pub/sub message. """
-        response = json.loads((message.data).decode())
+    """Receive and parse Pub/Sub messages."""
+    envelope = request.get_json()
+    if not envelope:
+        msg = "no Pub/Sub message received"
+        print(f"error: {msg}")
+        return f"Bad Request: {msg}", 400
+
+    if not isinstance(envelope, dict) or "message" not in envelope:
+        msg = "invalid Pub/Sub message format"
+        print(f"error: {msg}")
+        return f"Bad Request: {msg}", 400
+
+    pubsub_message = envelope["message"]
+    get_message(pubsub_message)
+    return {"health": "Health APIs"}
+
+def get_message(pubsub_message):
+    """ Listens for messages on a Pub/Sub subscription. """
+    response = "World"
+    if isinstance(pubsub_message, dict) and "data" in pubsub_message:
+        response = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
         print(response["task_id"])
         print(response["gcp_path"])
         convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
-        message.ack()
 
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    print(f"Listening for messages on {subscription_path}..\n")
+    print(f"Listening for messages on {response}..\n")
 
-    # Keep the script running to continue receiving messages
-    try:
-        streaming_pull_future.result()
-    except KeyboardInterrupt:
-        streaming_pull_future.cancel()
+    # subscriber = pubsub_v1.SubscriberClient()
+    # # The `subscription_path` method creates a fully qualified identifier
+    # # in the form `projects/{project_id}/subscriptions/{subscription_id}`
+    # subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
+    # def callback(message: pubsub_v1.subscriber.message.Message) -> None:
+    #     """ Receives a pub/sub message. """
+    #     response = json.loads((message.data).decode())
+    #     print(response["task_id"])
+    #     print(response["gcp_path"])
+    #     convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
+    #     message.ack()
+
+    # streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+    # print(f"Listening for messages on {subscription_path}..\n")
+
+    # # Keep the script running to continue receiving messages
+    # try:
+    #     streaming_pull_future.result()
+    # except KeyboardInterrupt:
+    #     streaming_pull_future.cancel()
 
 
 def convertir_video(task_id, bucket_name, gcp_path):
