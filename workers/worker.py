@@ -60,11 +60,12 @@ def get_message(response):
     print("response:")
     print(type(response))
     print(response)
-    response = json.loads(response)
+    task_id = response.get("task_id", None)
+    gcp_path = response.get("gcp_path", None)
     print("json Pyaload")
-    print(response["task_id"])
-    print(response["gcp_path"])
-    convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
+    print(task_id)
+    print(gcp_path)
+    convertir_video(task_id, GCP_BUCKET, gcp_path)
 
     print(f"Listening for messages on {response}..\n")
 
