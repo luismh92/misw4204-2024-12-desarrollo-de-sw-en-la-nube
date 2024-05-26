@@ -10,9 +10,6 @@ import uuid
 import time
 app = FastAPI()
 
-@app.get("/")
-def read_root():
-    return {"health": "Health APIs"}
 
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
 path_absolute = os.path.abspath("workers/credentials.json")
