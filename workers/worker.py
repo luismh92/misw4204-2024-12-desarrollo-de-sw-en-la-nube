@@ -10,7 +10,7 @@ import uuid
 import time
 app = FastAPI()
 
-@app.get("/")
+@app.post("/")
 def read_root():
     """ Health check endpoint. """
     get_message()
