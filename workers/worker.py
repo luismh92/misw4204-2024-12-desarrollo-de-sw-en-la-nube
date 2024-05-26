@@ -44,6 +44,7 @@ def get_message(pubsub_message):
     response = "World"
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         response = base64.b64decode(pubsub_message["data"]).decode("utf-8").strip()
+        print(response)
         print(response["task_id"])
         print(response["gcp_path"])
         convertir_video(response["task_id"], GCP_BUCKET, response["gcp_path"])
